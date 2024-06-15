@@ -1,1 +1,2 @@
-# CUDA
+# CUDA 
+Parallel Programming (GPU)
