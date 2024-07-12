@@ -10,7 +10,7 @@ __global__ void vecAdd(int *a, int *b, int *c)
 
 int main()
 {
-    cudaDeviceReset(); // inicializa em 0
+    cudaDeviceReset(); // inicializa em 0 tudo
     int *d_a, *d_b, *d_c;
     int n = 256;
     int size = n * sizeof(int);
