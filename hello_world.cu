@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+<<<<<<< HEAD
 __global__ void helloFromGPU() {
     printf("Hello World from GPU!\n");
 }
@@ -11,5 +12,16 @@ int main() {
     
     cudaDeviceSynchronize();
     
+=======
+__global__ void helloWorld()
+{
+    printf("Hello, World from GPU!\n");
+}
+
+int main()
+{
+    helloWorld<<<3, 10>>>();
+    cudaDeviceSynchronize();
+>>>>>>> f6faf68 (att)
     return 0;
 }
