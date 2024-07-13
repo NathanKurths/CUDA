@@ -1,2 +1,2 @@
 # CUDA 
-Parallel Programming (GPU)
+Studuying parallel programming (GPU).
