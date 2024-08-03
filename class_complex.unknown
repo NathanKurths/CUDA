@@ -1,0 +1,334 @@
+
+class custom_complex{
+    double real;
+    double imag;
+  public:
+    custom_complex() : real(0), imag(0){
+
+    }
+    custom_complex(double real, double imag) : real(real), imag(imag){
+
+    }
+    /*custom_complex(const int& op_d){
+      this->real = (double)op_d;
+      this->imag = 0;
+    }*/
+    custom_complex(const double& op_d){
+      this->real = op_d;
+      this->imag = 0;
+    }
+    friend double creal(const custom_complex& x){
+      return x.real;
+    }
+    friend double cimag(const custom_complex& x){
+      return x.imag;
+    }
+    friend custom_complex operator+(const custom_complex& op_e, const custom_complex& op_d){
+      custom_complex ret(op_e.real + op_d.real, op_e.imag + op_d.imag);
+      return(ret);
+    }
+    friend custom_complex operator+(const double& op_e, const custom_complex& op_d){
+      custom_complex ret(op_e + op_d.real, op_d.imag);
+      return(ret);
+    }
+    friend void operator+=(custom_complex& op_e, const custom_complex& op_d){
+      op_e = op_e + op_d;
+    }
+    void operator=(const int& op_d){
+      this->real = (double)op_d;
+      this->imag = 0;
+    }
+    friend custom_complex operator-(const custom_complex& op_e, const custom_complex& op_d){
+      custom_complex ret(op_e.real - op_d.real, op_e.imag - op_d.imag);
+      return(ret);
+    }
+    friend custom_complex operator-(const custom_complex& op_d){
+      custom_complex ret(-op_d.real,-op_d.imag);
+      return(ret);
+    }
+    friend custom_complex operator*(const custom_complex& op_e, const custom_complex& op_d){
+      custom_complex ret(op_e.real * op_d.real - op_e.imag * op_d.imag,
+                         op_e.real * op_d.imag + op_e.imag * op_d.real);//TODO
+      return(ret);
+    }
+    friend custom_complex operator*(const custom_complex& op_e, const double& op_d){
+      custom_complex ret(op_e.real * op_d, op_e.imag * op_d);//TODO
+      return(ret);
+    }
+    friend custom_complex operator*(const double& op_e, const custom_complex& op_d){
+      custom_complex ret(op_e * op_d.real, op_e * op_d.imag);//TODO
+      return(ret);
+    }
+    friend void operator*=(custom_complex& op_e, const custom_complex& op_d){
+      op_e = op_e * op_d;
+    }
+    friend void operator*=(custom_complex& op_e, const double& op_d){
+      op_e = op_e * custom_complex(op_d, 0.0);
+    }
+    friend custom_complex operator/(const custom_complex& op_e, const custom_complex& op_d){ //DIVISAO AQUI
+      custom_complex ret;
+#ifdef CA_GCC
+      #define RBIG   (DBL_MAX / 2)
+      #define RMIN   (DBL_MIN)
+      #define RMIN2  (DBL_EPSILON)
+      #define RMINSCAL (1 / DBL_EPSILON)
+      #define RMAX2  (RBIG * RMIN2)
+
+      double a = creal(op_e), b = cimag(op_e), c = creal(op_d), d = cimag(op_d);
+      double denom, ratio, x, y;
+      /* long double has significant potential underflow/overflow errors that
+        can be greatly reduced with a limited number of tests and adjustments.
+      */
+
+      /* Scale by max(c,d) to reduce chances of denominator overflowing.  */
+      if (fabs (c) < fabs (d))
+        {
+          /* Prevent underflow when denominator is near max representable.  */
+          if (fabs (d) >= RBIG)
+      {
+        a = a / 2;
+        b = b / 2;
+        c = c / 2;
+        d = d / 2;
+      }
+          /* Avoid overflow/underflow issues when c and d are small.
+      Scaling up helps avoid some underflows.
+      No new overflow possible since c&d < RMIN2.  */
+          if (fabs (d) < RMIN2)
+      {
+        a = a * RMINSCAL;
+        b = b * RMINSCAL;
+        c = c * RMINSCAL;
+        d = d * RMINSCAL;
+      }
+          else
+      {
+        if (((fabs (a) < RMIN) && (fabs (b) < RMAX2) && (fabs (d) < RMAX2))
+            || ((fabs (b) < RMIN) && (fabs (a) < RMAX2)
+          && (fabs (d) < RMAX2)))
+          {
+            a = a * RMINSCAL;
+            b = b * RMINSCAL;
+            c = c * RMINSCAL;
+            d = d * RMINSCAL;
+          }
+      }
+          ratio = c / d;
+          denom = (c * ratio) + d;
+          /* Choose alternate order of computation if ratio is subnormal.  */
+          if (fabs (ratio) > RMIN)
+      {
+        x = ((a * ratio) + b) / denom;
+        y = ((b * ratio) - a) / denom;
+      }
+          else
+      {
+        x = ((c * (a / d)) + b) / denom;
+        y = ((c * (b / d)) - a) / denom;
+      }
+        }
+      else
+        {
+          /* Prevent underflow when denominator is near max representable.  */
+          if (fabs (c) >= RBIG)
+      {
+        a = a / 2;
+        b = b / 2;
+        c = c / 2;
+        d = d / 2;
+      }
+          /* Avoid overflow/underflow issues when both c and d are small.
+      Scaling up helps avoid some underflows.
+      No new overflow possible since both c&d are less than RMIN2.  */
+          if (fabs (c) < RMIN2)
+      {
+        a = a * RMINSCAL;
+        b = b * RMINSCAL;
+        c = c * RMINSCAL;
+        d = d * RMINSCAL;
+      }
+          else
+      {
+        if (((fabs (a) < RMIN) && (fabs (b) < RMAX2) && (fabs (c) < RMAX2))
+            || ((fabs (b) < RMIN) && (fabs (a) < RMAX2)
+          && (fabs (c) < RMAX2)))
+          {
+            a = a * RMINSCAL;
+            b = b * RMINSCAL;
+            c = c * RMINSCAL;
+            d = d * RMINSCAL;
+          }
+      }
+          ratio = d / c;
+          denom = (d * ratio) + c;
+          /* Choose alternate order of computation if ratio is subnormal.  */
+          if (fabs (ratio) > RMIN)
+      {
+        x = ((b * ratio) + a) / denom;
+        y = (b - (a * ratio)) / denom;
+      }
+          else
+      {
+        x = (a + (d * (b / c))) / denom;
+        y = (b - (d * (a / c))) / denom;
+      }
+        }
+
+      /* Recover infinities and zeros that computed as NaN+iNaN; the only cases
+        are nonzero/zero, infinite/finite, and finite/infinite.  */
+      if (isnan (x) && isnan (y))
+        {
+          if (c == 0.0 && d == 0.0 && (!isnan (a) || !isnan (b)))
+      {
+        x = copysign (INFINITY, c) * a;
+        y = copysign (INFINITY, c) * b;
+      }
+          else if ((isinf (a) || isinf (b)) && isfinite (c) && isfinite (d))
+      {
+        a = copysign (isinf (a) ? 1 : 0, a);
+        b = copysign (isinf (b) ? 1 : 0, b);
+        x = INFINITY * (a * c + b * d);
+        y = INFINITY * (b * c - a * d);
+      }
+          else if ((isinf (c) || isinf (d)) && isfinite (a) && isfinite (b))
+      {
+        c = copysign (isinf (c) ? 1 : 0, c);
+        d = copysign (isinf (d) ? 1 : 0, d);
+        x = 0.0 * (a * c + b * d);
+        y = 0.0 * (b * c - a * d);
+      }
+        }
+      ret.real = x;
+      ret.imag = y;
+#elif CA_CUCOMPLEX
+//TODO Marcelo: algoritmo
+      double s = (fabs(creal(op_d))) + (fabs(cimag(op_d)));
+      double oos = 1.0 / s;
+      double ars = creal(op_e) * oos;
+      double ais = cimag(op_e) * oos;
+      double brs = creal(op_d) * oos;
+      double bis = cimag(op_d) * oos;
+      s = (brs * brs) + (bis * bis);
+      oos = 1.0 / s;
+      ret.real = ((ars * brs) + (ais * bis)) * oos;
+      ret.imag = ((ais * brs) - (ars * bis)) * oos;
+#elif CA_ALGEBRICO
+//TODO Marcelo: algoritmo
+      ret.real = (creal(op_e)*creal(op_d) + cimag(op_e)*cimag(op_d)) / (creal(op_d)*creal(op_d) + cimag(op_d)*cimag(op_d));
+      ret.imag = (cimag(op_e)*creal(op_d) - creal(op_e)*cimag(op_d)) / (creal(op_d)*creal(op_d) + cimag(op_d)*cimag(op_d));
+#elif CA_SMITH
+//TODO Marcelo: algoritmo
+      double r, den;
+      if(fabs(creal(op_d)) < fabs(cimag(op_d))){
+          r = creal(op_d) / cimag(op_d);
+          den = (creal(op_d) * r) + cimag(op_d);
+          ret.real = (creal(op_e) * r + cimag(op_e)) / den;
+          ret.imag = (cimag(op_e) * r - creal(op_e)) / den;
+      }
+      else{
+          r = cimag(op_d) / creal(op_d);
+          den = creal(op_d) + (cimag(op_d) * r);
+          ret.real = (creal(op_e) + cimag(op_e) * r) / den;
+          ret.imag = (cimag(op_e) - creal(op_e) * r) / den;
+      }
+#else
+#error
+#endif
+      return(ret);
+    }
+    friend custom_complex operator/(const custom_complex& op_e, const double& op_d){
+      custom_complex ret(op_e.real / op_d, op_e.imag / op_d);
+      return(ret);
+    }
+    friend custom_complex cexp(const custom_complex& x){
+      custom_complex ret;
+#ifdef CA_CUCOMPLEX
+//TODO Marcelo: algoritmo
+      double factor = exp(creal(x));
+      ret.real = factor * cos(cimag(x));
+      ret.imag = factor * sin(cimag(x));
+#elif CA_ALGEBRICO
+//TODO Marcelo: algoritmo
+      double factor = exp(creal(x));
+      ret.real = factor * cos(cimag(x));
+      ret.imag = factor * sin(cimag(x));
+#elif CA_SMITH || CA_GCC
+      std::complex<double> tmp(x.real, x.imag);
+      std::complex<double> tmp2 = exp(tmp);
+      ret.real = tmp2.real();
+      ret.imag = tmp2.imag();
+#else
+#error
+#endif
+      return(ret);//TODO
+    }
+    friend custom_complex csqrt(const custom_complex& x){
+      custom_complex ret;
+#ifdef CA_CUCOMPLEX
+//TODO Marcelo: algoritmo
+      double radius = cabs(x);
+      double cosA = creal(x) / radius;
+      ret.real = sqrt(radius * (cosA + 1.0) / 2.0);
+      ret.imag = sqrt(radius * (1.0 - cosA) / 2.0);
+      if(signbit(ret.imag)) ret.imag *= -1.0;
+#elif CA_ALGEBRICO
+//TODO Marcelo: algoritmo
+      double z = cabs(x);
+      ret.real = sqrt((z + creal(x)) / 2);
+      ret.imag = sqrt((z - creal(x)) / 2);
+      ret.imag *= cimag(x);
+      ret.imag /= fabs(cimag(x));
+#elif CA_SMITH || CA_GCC
+//TODO Marcelo: algoritmo
+      std::complex<double> tmp(x.real, x.imag);
+      std::complex<double> tmp2 = sqrt(tmp);
+      ret.real = tmp2.real();
+      ret.imag = tmp2.imag();
+#else
+#error
+#endif
+      return(ret);//TODO
+    }
+    friend double cabs(const custom_complex& x){
+      double ret;
+#ifdef CA_CUCOMPLEX
+//TODO Marcelo: algoritmo
+      double a = creal(x);
+      double b = cimag(x);
+      double v, w, t;
+      a = fabs(a);
+      b = fabs(b);
+      if(a > b){
+          v = a;
+          w = b;
+      }
+      else{
+          v = b;
+          w = a;
+      }
+      t = w / v;
+      t = 1.0 + t * t;
+      t = v * sqrt(t);
+      if ((v == 0.0) ||
+          (v > 1.79769313486231570e+308) || (w > 1.79769313486231570e+308)) {
+          t = v + w;
+      }
+      ret = t;
+#elif CA_ALGEBRICO
+//TODO Marcelo: algoritmo
+      double a = creal(x);
+      double b = cimag(x);
+      a *= a;
+      b *= b;
+      a += b;
+      ret = sqrt(a);
+#elif CA_SMITH || CA_GCC
+//TODO Marcelo: algoritmo
+      std::complex<double> tmp(x.real, x.imag);
+      ret = abs(tmp);
+#else
+#error
+#endif
+      return(ret);//TODO
+    }
+};
